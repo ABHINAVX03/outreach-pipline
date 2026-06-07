@@ -1,0 +1,14 @@
+Hi {first_name},
+
+I came across {company} and was genuinely impressed by what you're building.
+
+We help Series A-C SaaS companies cut their sales cycle by 40% through automated, personalized outreach at scale.
+
+Given your role as {title}, I thought this might be relevant to you.
+
+Would a 15-minute call this week make sense? Happy to work around your calendar.
+
+Best,
+Abhinav Gupta
+SDE Intern — Vocallabs
++91 93152 31242 / calendly.com/abhinavgupta
