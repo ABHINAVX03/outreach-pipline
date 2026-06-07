@@ -36,7 +36,7 @@ All with one command. A `--dry-run` flag lets you test the full pipeline without
 - **Rate-limit handling** — exponential backoff with automatic retries
 - **Safety checkpoint** — interactive Y/N prompt before any real sends
 - **Dry-run mode** — test end-to-end without firing a single email
-- **Deduplication** — `sent_emails.txt` ensures no contact is ever emailed twice
+- **Deduplication** — `data/sent_emails.txt` ensures no contact is emailed twice
 - **Automated deployment** — EC2 + cron for daily, unattended execution
 
 ---
@@ -63,7 +63,7 @@ Seed domain
 ## Project Structure
 
 ```
-outreach-pipline/
+outreach_pipeline/
 ├── main.py                  # CLI entry point
 ├── config.py                # Loads & validates .env
 ├── requirements.txt
@@ -115,6 +115,9 @@ PROSPEO_API_KEY=your_prospeo_key
 BREVO_API_KEY=your_brevo_key
 SENDER_EMAIL=your_verified_sender@domain.com
 SENDER_NAME=Your Name
+MAX_LOOKALIKES=20
+MAX_CONTACTS_PER_DOMAIN=3
+MAX_DOMAINS=3
 ```
 
 ### 4. Customise the email template
@@ -147,7 +150,7 @@ The pipeline runs on an AWS EC2 **t3.micro** instance (free tier) at **9:00 AM I
 1. `run_daily.py` reads the first domain from `seed_list.txt`
 2. Calls the main pipeline with that domain
 3. Removes the used domain so the next run picks the next one
-4. `sent_emails.txt` is checked — already-contacted leads are skipped automatically
+4. `data/sent_emails.txt` is checked — already-contacted leads are skipped automatically
 
 ### Manual trigger on the server
 
@@ -189,6 +192,6 @@ Tested against `apollo.io` as the seed domain:
 | Prospeo required two sequential API calls | Implemented a two-step search → enrich flow with correct payload wrapping |
 | Brevo rejected requests with 401 errors | Whitelisted the EC2 instance IP in Brevo's security settings |
 | Prospeo free-tier rate limits (429s) | Capped daily domain count and increased sleep intervals between requests |
-| Vocallabs removed Eazyreach mid-project | Dropped Stage 3 cleanly; Prospeo already provided verified emails |
+| Vocallabs removed Eazyreach mid-project | Dropped Stage 3 cleanly; Prospeo already provides verified emails |
 
 ---

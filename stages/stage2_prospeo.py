@@ -10,7 +10,7 @@ Auth: X-KEY header
 import logging
 import time
 import httpx
-from config import PROSPEO_API_KEY, MAX_CONTACTS_PER_DOMAIN
+from config import PROSPEO_API_KEY, MAX_CONTACTS_PER_DOMAIN, MAX_DOMAINS
 from utils.retry import api_retry
 
 logger = logging.getLogger(__name__)
@@ -88,9 +88,12 @@ def get_decision_makers(domains: list[str]) -> list[dict]:
         raise EnvironmentError("PROSPEO_API_KEY is not set in .env")
 
     all_contacts: list[dict] = []
+    seen_emails: set[str] = set()
+    domains_to_search = list(dict.fromkeys(d.strip().lower() for d in domains if d.strip()))
+    domains_to_search = domains_to_search[:MAX_DOMAINS]
 
-    for i, domain in enumerate(domains[:3], 1):
-        logger.info("[Stage 2] (%d/%d) Searching: %s", i, len(domains), domain)
+    for i, domain in enumerate(domains_to_search, 1):
+        logger.info("[Stage 2] (%d/%d) Searching: %s", i, len(domains_to_search), domain)
         try:
             results = _search_people(domain)
             for result in results:
@@ -110,6 +113,11 @@ def get_decision_makers(domains: list[str]) -> list[dict]:
 
                 email = _enrich_person(person_id)
                 if email:
+                    email = email.strip().lower()
+                    if email in seen_emails:
+                        logger.info("[Stage 2] Duplicate email %s — skipping", email)
+                        continue
+                    seen_emails.add(email)
                     all_contacts.append({
                         "domain":       domain,
                         "company":      company_name,

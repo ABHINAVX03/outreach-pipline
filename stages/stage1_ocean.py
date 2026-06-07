@@ -73,13 +73,14 @@ def get_lookalikes(seed_domain: str) -> list[str]:
     if not OCEAN_API_KEY:
         raise EnvironmentError("OCEAN_API_KEY is not set in .env")
 
+    seed_domain = seed_domain.strip().lower()
     logger.info("[Stage 1] Querying Ocean.io for lookalikes of: %s", seed_domain)
 
     data    = _call_ocean(seed_domain)
     domains = _extract_domains(data)
 
-    # Remove the seed itself from results
-    domains = [d for d in domains if d != seed_domain.lower()]
+    # Remove the seed itself and preserve first-seen order.
+    domains = list(dict.fromkeys(d for d in domains if d != seed_domain))
 
     logger.info("[Stage 1] Found %d lookalike domain(s)", len(domains))
     return domains

@@ -26,7 +26,7 @@ def confirm_before_send(contacts: list[dict]) -> bool:
         print(f"\n  ... and {len(contacts) - 5} more contact(s)")
 
     print(divider)
-    print("  Review data/stage3_enriched.csv for the full list.")
+    print("  Review data/stage2_contacts.csv for the full list.")
     print(divider)
 
     try:

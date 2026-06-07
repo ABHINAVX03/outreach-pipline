@@ -16,7 +16,6 @@ import click
 from config import validate_env
 from stages.stage1_ocean    import get_lookalikes
 from stages.stage2_prospeo  import get_decision_makers
-#from stages.stage3_eazyreach import resolve_emails
 from stages.stage4_brevo    import send_outreach
 from utils.checkpoint       import confirm_before_send
 
@@ -39,8 +38,9 @@ def save_csv(rows: list[dict], filename: str) -> None:
         return
     DATA_DIR.mkdir(exist_ok=True)
     path = DATA_DIR / filename
+    fieldnames = sorted({key for row in rows for key in row.keys()})
     with open(path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=rows[0].keys())
+        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
         writer.writeheader()
         writer.writerows(rows)
     logger.info("Saved %d row(s) → %s", len(rows), path)
@@ -60,7 +60,7 @@ def divider(label: str) -> None:
     "--dry-run",
     is_flag=True,
     default=False,
-    help="Run stages 1-3 but skip the email send entirely.",
+    help="Run discovery and enrichment but skip the email send entirely.",
 )
 @click.option(
     "--skip-confirm",
@@ -78,6 +78,7 @@ def run(seed_domain: str, dry_run: bool, skip_confirm: bool) -> None:
     """
     # ── Pre-flight checks ──────────────────────────────────────────────────
     validate_env()
+    seed_domain = seed_domain.strip().lower()
     logger.info("Pipeline starting for seed: %s", seed_domain)
 
     # ── Stage 1 — Lookalike companies ──────────────────────────────────────

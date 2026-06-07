@@ -4,7 +4,7 @@ from tenacity import (
     retry,
     stop_after_attempt,
     wait_exponential,
-    retry_if_exception_type,
+    retry_if_exception,
     before_sleep_log,
 )
 
@@ -26,7 +26,7 @@ def api_retry(attempts: int = 3, min_wait: int = 2, max_wait: int = 30):
     return retry(
         stop=stop_after_attempt(attempts),
         wait=wait_exponential(multiplier=1, min=min_wait, max=max_wait),
-        retry=retry_if_exception_type((httpx.HTTPStatusError, httpx.RequestError)),
+        retry=retry_if_exception(_is_retryable),
         before_sleep=before_sleep_log(logger, logging.WARNING),
         reraise=True,
     )
